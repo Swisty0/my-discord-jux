@@ -19,7 +19,7 @@ module.exports = async (interaction) => {
         if (interaction.customId === 'create_ticket') {
             const existingChannel = interaction.guild.channels.cache.find(c => c.name === `ticket-${interaction.user.username.toLowerCase()}`);
             if (existingChannel) {
-                return interaction.reply({ content: `❌ Zaten açık bir biletiniz var: ${existingChannel}`, ephemeral: true });
+                return interaction.reply({ content: `<a:hata:1544075791397163018> Zaten açık bir biletiniz var: ${existingChannel}`, ephemeral: true });
             }
 
             const channel = await interaction.guild.channels.create({
@@ -33,7 +33,7 @@ module.exports = async (interaction) => {
             });
 
             const embed = new EmbedBuilder()
-                .setTitle('🎫 Destek Talebi Oluşturuldu')
+                .setTitle('<a:kylockz_Onay:1544024256986353686> Destek Talebi Oluşturuldu')
                 .setColor('#2b2d31')
                 .setDescription(`Merhaba ${interaction.user}, yetkililer en kısa sürede sizinle ilgilenecektir.\nBileti kapatmak için **Bileti Kapat** butonuna basabilirsiniz.`);
 
@@ -116,7 +116,7 @@ module.exports = async (interaction) => {
         }
 
         const logEmbed = new EmbedBuilder()
-            .setTitle('📥 Yeni Yetkili Başvurusu')
+            .setTitle('<a:partimuzik:1544076160445587576> Yeni Yetkili Başvurusu')
             .setColor('#e67e22')
             .setThumbnail(interaction.user.displayAvatarURL())
             .addFields(
@@ -133,19 +133,19 @@ module.exports = async (interaction) => {
             new ButtonBuilder()
                 .setCustomId(`basvuru_onay_${interaction.user.id}`)
                 .setLabel('Onayla')
-                .setEmoji('✅')
+                .setEmoji('<a:kylockz_Onay:1544024256986353686>')
                 .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
                 .setCustomId(`basvuru_red_${interaction.user.id}`)
                 .setLabel('Reddet')
-                .setEmoji('❌')
+                .setEmoji('<a:emoji_97:1544076512037314651>')
                 .setStyle(ButtonStyle.Danger)
         );
 
         await logChannel.send({ embeds: [logEmbed], components: [actionButtons] });
 
         return interaction.reply({ 
-            content: '✅ Başvurunuz başarıyla yetkililere iletildi. Teşekkür ederiz!', 
+            content: '<a:kylockz_Onay:1544024256986353686> Başvurunuz başarıyla yetkililere iletildi. Teşekkür ederiz!', 
             ephemeral: true 
         });
     }
@@ -177,8 +177,8 @@ module.exports = async (interaction) => {
 
         if (applicant) {
             const statusMessage = isApprove
-                ? '🎉 **Tebrikler!** Yetkili başvurunuz onaylandı. En kısa sürede sizinle iletişime geçilecektir.'
-                : '❌ **Maalesef**, yetkili başvurunuz reddedildi. Gösterdiğiniz ilgi için teşekkür ederiz.';
+                ? '<a:cekilis:1544075994145628292> **Tebrikler!** Yetkili başvurunuz onaylandı. En kısa sürede sizinle iletişime geçilecektir.'
+                : '<a:emoji_97:1544076512037314651> **Maalesef**, yetkili başvurunuz reddedildi. Gösterdiğiniz ilgi için teşekkür ederiz.';
             
             await applicant.send(statusMessage).catch(() => {});
         }
