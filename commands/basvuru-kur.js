@@ -9,14 +9,14 @@ module.exports = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle('📝 Yetkili Başvuru Formu')
+            .setTitle('<a:partimuzik:1544076160445587576> Yetkili Başvuru Formu')
             .setColor('#2b2d31')
             .setDescription(
-                '# Sunucumuza Yetkili Ekip Arkadaşları Arıyoruz!\n\n' +
+                '# <a:duyuru:1544076380558589982> Sunucumuza Yetkili Ekip Arkadaşları Arıyoruz!\n\n' +
                 'Aşağıdaki **"Başvuru Yap"** butonuna basarak formu doldurabilir ve yetkili ekibimize katılmak için ilk adımı atabilirsiniz.\n\n' +
-                '⚠️ **Kurallar:**\n' +
-                '• Yanıltıcı bilgi vermek başvurunuzun reddedilmesine yol açar.\n' +
-                '• Lütfen formu eksiksiz ve özenle doldurun.'
+                '<a:hata:1544075791397163018> **Kurallar:**\n' +
+                '<a:32877animatedarrowbluelite:1544079118247796769> Yanıltıcı bilgi vermek başvurunuzun reddedilmesine yol açar.\n' +
+                '<a:32877animatedarrowbluelite:1544079118247796769> Lütfen formu eksiksiz ve özenle doldurun.'
             )
             .setFooter({ text: 'J U X Başvuru Sistemi', iconURL: message.client.user.displayAvatarURL() });
 
@@ -24,7 +24,7 @@ module.exports = {
             new ButtonBuilder()
                 .setCustomId('basvuru_form_ac')
                 .setLabel('Başvuru Yap')
-                .setEmoji('📝')
+                .setEmoji('<:plus:1544076344927846541>')
                 .setStyle(ButtonStyle.Success)
         );
 
