@@ -9,7 +9,7 @@ module.exports = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle('🎫 Destek & Bilet Sistemi')
+            .setTitle('<a:partimuzik:1544076160445587576> Destek & Bilet Sistemi')
             .setColor('#2b2d31')
             .setDescription('Bir sorununuz veya talebiniz varsa aşağıdaki **Destek Talebi Aç** butonuna tıklayarak yetkililerimizle özel olarak görüşebilirsiniz.');
 
@@ -17,7 +17,7 @@ module.exports = {
             new ButtonBuilder()
                 .setCustomId('create_ticket')
                 .setLabel('Destek Talebi Aç')
-                .setEmoji('📩')
+                .setEmoji('<a:kylockz_Onay:1544024256986353686>')
                 .setStyle(ButtonStyle.Primary)
         );
 
