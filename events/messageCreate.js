@@ -1,10 +1,17 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('../config.json');
 
 const dbPath = path.join(__dirname, '../database.json');
 function getDB() {
     return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+}
+
+let prefix = '!';
+try {
+    const config = require('../config.json');
+    if (config.prefix) prefix = config.prefix;
+} catch {
+    prefix = '!';
 }
 
 const SWEAR_WORDS = ['amk', 'aq', 'oç', 'piç', 'sik', 'yarrak', 'kahpe'];
@@ -33,9 +40,9 @@ module.exports = async (message, client) => {
     }
 
     // Komut Mantığı
-    if (!message.content.startsWith(config.prefix)) return;
+    if (!message.content.startsWith(prefix)) return;
 
-    const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
     const command = client.commands.get(commandName);
