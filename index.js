@@ -1,14 +1,13 @@
-const express = require('express');
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.get('/', (req, res) => res.send('Bot 7/24 Aktif!'));
-app.listen(port, () => console.log(`Web sunucusu ${port} portunda çalışıyor.`));
-
 const { Client, GatewayIntentBits, Collection, Partials } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const config = require('./config.json');
+const express = require('express');
+
+// Express Web Sunucusu (Render'da 7/24 açık kalması için)
+const app = express();
+const port = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Bot 7/24 Aktif!'));
+app.listen(port, () => console.log(`Web sunucusu ${port} portunda çalışıyor.`));
 
 const client = new Client({
     intents: [
@@ -49,4 +48,13 @@ client.once('ready', () => {
     client.user.setActivity('Sunucu Güvenliği & Destek | !ayarlar', { type: 3 });
 });
 
-client.login(config.token);
+// Token'ı Render Environment Variables'dan çek veya yerel config.json varsa oradan al
+let token;
+try {
+    const config = require('./config.json');
+    token = process.env.TOKEN || config.token;
+} catch {
+    token = process.env.TOKEN;
+}
+
+client.login(token);
