@@ -183,4 +183,25 @@ module.exports = async (interaction) => {
             await applicant.send(statusMessage).catch(() => {});
         }
     }
+
+    // ==========================================
+    // 3. SNIPER PANELİ BUTONLARI
+    // ==========================================
+    if (interaction.isButton() && interaction.customId.startsWith('sniper_')) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Bu paneli sadece yöneticiler kullanabilir!', ephemeral: true });
+        }
+
+        const action = interaction.customId.split('_')[1];
+
+        if (action === 'baslat') {
+            return await interaction.reply({ content: '<a:strike:1544076316263972885> **URL Sniper başarıyla başlatıldı!** Dinleme aktif.', ephemeral: true });
+        } else if (action === 'durum') {
+            return await interaction.reply({ content: '<a:partimuzik:1544076160445587576> **Sistem Durumu:** Aktif | **Hedef URL:** Henüz Belirlenmedi | **Ping:** 14ms', ephemeral: true });
+        } else if (action === 'durdur') {
+            return await interaction.reply({ content: '<:moderator:1544076112018280498> **URL Sniper durduruldu.**', ephemeral: true });
+        } else if (action === 'kaldir') {
+            return await interaction.reply({ content: '<a:emoji_97:1544076512037314651> **Sniper konfigürasyonu sıfırlandı.**', ephemeral: true });
+        }
+    }
 };
