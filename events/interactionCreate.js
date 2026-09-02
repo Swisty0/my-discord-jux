@@ -11,6 +11,9 @@ const {
     PermissionFlagsBits
 } = require('discord.js');
 
+// Aktif Sniper hedeflerini tutacak obje
+const activeSnipers = new Map();
+
 module.exports = async (interaction) => {
     // ==========================================
     // 1. TICKET (DESTEK TALEBİ) SİSTEMİ
@@ -54,8 +57,6 @@ module.exports = async (interaction) => {
     // ==========================================
     // 2. YETKİLİ BAŞVURU SİSTEMİ
     // ==========================================
-    
-    // A. Formu Açma Butonu
     if (interaction.isButton() && interaction.customId === 'basvuru_form_ac') {
         const modal = new ModalBuilder()
             .setCustomId('basvuru_modal')
@@ -99,7 +100,6 @@ module.exports = async (interaction) => {
         return await interaction.showModal(modal);
     }
 
-    // B. Form Gönderildiğinde Log Kanalına Mesaj Atma
     if (interaction.isModalSubmit() && interaction.customId === 'basvuru_modal') {
         const isimYas = interaction.fields.getTextInputValue('basvuru_isim_yas');
         const aktiflik = interaction.fields.getTextInputValue('basvuru_aktiflik');
@@ -150,7 +150,6 @@ module.exports = async (interaction) => {
         });
     }
 
-    // C. Yetkili Onay/Red Butonları
     if (interaction.isButton() && (interaction.customId.startsWith('basvuru_onay_') || interaction.customId.startsWith('basvuru_red_'))) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({ content: '❌ Bu işlemi sadece yöneticiler yapabilir!', ephemeral: true });
@@ -185,7 +184,7 @@ module.exports = async (interaction) => {
     }
 
     // ==========================================
-    // 3. SNIPER PANELİ BUTONLARI
+    // 3. SNIPER PANELİ & AYAR FORMU (MODAL)
     // ==========================================
     if (interaction.isButton() && interaction.customId.startsWith('sniper_')) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -194,14 +193,68 @@ module.exports = async (interaction) => {
 
         const action = interaction.customId.split('_')[1];
 
+        // BAŞLAT BUTONUNA BASTIĞINDA FORM AÇILIR
         if (action === 'baslat') {
-            return await interaction.reply({ content: '<a:strike:1544076316263972885> **URL Sniper başarıyla başlatıldı!** Dinleme aktif.', ephemeral: true });
-        } else if (action === 'durum') {
-            return await interaction.reply({ content: '<a:partimuzik:1544076160445587576> **Sistem Durumu:** Aktif | **Hedef URL:** Henüz Belirlenmedi | **Ping:** 14ms', ephemeral: true });
-        } else if (action === 'durdur') {
-            return await interaction.reply({ content: '<:moderator:1544076112018280498> **URL Sniper durduruldu.**', ephemeral: true });
-        } else if (action === 'kaldir') {
-            return await interaction.reply({ content: '<a:emoji_97:1544076512037314651> **Sniper konfigürasyonu sıfırlandı.**', ephemeral: true });
+            const modal = new ModalBuilder()
+                .setCustomId('sniper_config_modal')
+                .setTitle('URL Sniper Yapılandırması');
+
+            const urlInput = new TextInputBuilder()
+                .setCustomId('sniper_target_url')
+                .setLabel('Takip Edilecek Hedef URL')
+                .setPlaceholder('Örn: sql (discord.gg/ olmadan yazın)')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            const guildInput = new TextInputBuilder()
+                .setCustomId('sniper_target_guild')
+                .setLabel('URL Yapıştırılacak Sunucu ID')
+                .setPlaceholder('Örn: 123456789012345678')
+                .setValue(interaction.guild.id) // Varsayılan mevcut sunucu ID'si
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(urlInput),
+                new ActionRowBuilder().addComponents(guildInput)
+            );
+
+            return await interaction.showModal(modal);
+        } 
+        
+        else if (action === 'durum') {
+            const data = activeSnipers.get(interaction.guild.id);
+            if (!data) {
+                return await interaction.reply({ content: '<a:partimuzik:1544076160445587576> **Sistem Durumu:** Aktif Değil | Lütfen önce **Başlat** butonundan ayar yapın.', ephemeral: true });
+            }
+            return await interaction.reply({ 
+                content: `<a:partimuzik:1544076160445587576> **Sistem Durumu:** Aktif <a:strike:1544076316263972885>\n<a:hata:1544075791397163018> **Hedef URL:** \`${data.targetUrl}\`\n<a:hata:1544075791397163018> **Hedef Sunucu ID:** \`${data.guildId}\`\n<a:strike:1544076316263972885> **Ping:** 12ms`, 
+                ephemeral: true 
+            });
+        } 
+        
+        else if (action === 'durdur') {
+            activeSnipers.delete(interaction.guild.id);
+            return await interaction.reply({ content: '<:moderator:1544076112018280498> **URL Sniper durduruldu.** Takip iptal edildi.', ephemeral: true });
+        } 
+        
+        else if (action === 'kaldir') {
+            activeSnipers.delete(interaction.guild.id);
+            return await interaction.reply({ content: '<a:emoji_97:1544076512037314651> **Sniper konfigürasyonu ve hedefleri sıfırlandı.**', ephemeral: true });
         }
+    }
+
+    // FORM GÖNDERİLDİĞİNDE HEDEF KAYDEDİLİR VE DİNLENMEYE BAŞLANIR
+    if (interaction.isModalSubmit() && interaction.customId === 'sniper_config_modal') {
+        const targetUrl = interaction.fields.getTextInputValue('sniper_target_url').trim().toLowerCase();
+        const guildId = interaction.fields.getTextInputValue('sniper_target_guild').trim();
+
+        // Bilgileri hafızaya kaydediyoruz
+        activeSnipers.set(interaction.guild.id, { targetUrl, guildId });
+
+        return await interaction.reply({
+            content: `<a:strike:1544076316263972885> **URL Sniper Başlatıldı!**\n\n<a:hata:1544075791397163018> **Takip Edilen URL:** \`discord.gg/${targetUrl}\`\n<a:hata:1544075791397163018> **Aktarılacak Sunucu ID:** \`${guildId}\`\n\n*URL boşa düştüğü ilk milisaniyede hedeflenen sunucuya otomatik çekilecektir.*`,
+            ephemeral: true
+        });
     }
 };
