@@ -11,6 +11,8 @@ const {
     PermissionFlagsBits
 } = require('discord.js');
 
+const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
+
 // Aktif Sniper hedeflerini tutacak obje
 const activeSnipers = new Map();
 
@@ -193,7 +195,6 @@ module.exports = async (interaction) => {
 
         const action = interaction.customId.split('_')[1];
 
-        // BAŞLAT BUTONUNA BASTIĞINDA FORM AÇILIR
         if (action === 'baslat') {
             const modal = new ModalBuilder()
                 .setCustomId('sniper_config_modal')
@@ -210,7 +211,7 @@ module.exports = async (interaction) => {
                 .setCustomId('sniper_target_guild')
                 .setLabel('URL Yapıştırılacak Sunucu ID')
                 .setPlaceholder('Örn: 123456789012345678')
-                .setValue(interaction.guild.id) // Varsayılan mevcut sunucu ID'si
+                .setValue(interaction.guild.id)
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true);
 
@@ -244,17 +245,64 @@ module.exports = async (interaction) => {
         }
     }
 
-    // FORM GÖNDERİLDİĞİNDE HEDEF KAYDEDİLİR VE DİNLENMEYE BAŞLANIR
     if (interaction.isModalSubmit() && interaction.customId === 'sniper_config_modal') {
         const targetUrl = interaction.fields.getTextInputValue('sniper_target_url').trim().toLowerCase();
         const guildId = interaction.fields.getTextInputValue('sniper_target_guild').trim();
 
-        // Bilgileri hafızaya kaydediyoruz
         activeSnipers.set(interaction.guild.id, { targetUrl, guildId });
 
         return await interaction.reply({
             content: `<a:strike:1544076316263972885> **URL Sniper Başlatıldı!**\n\n<a:hata:1544075791397163018> **Takip Edilen URL:** \`discord.gg/${targetUrl}\`\n<a:hata:1544075791397163018> **Aktarılacak Sunucu ID:** \`${guildId}\`\n\n*URL boşa düştüğü ilk milisaniyede hedeflenen sunucuya otomatik çekilecektir.*`,
             ephemeral: true
         });
+    }
+
+    // ==========================================
+    // 4. SES PANELİ BUTON İŞLEMLERİ (HERKESE AÇIK)
+    // ==========================================
+    if (interaction.isButton() && interaction.customId.startsWith('voice_')) {
+        const action = interaction.customId;
+
+        // Bulunduğu Kanala Çağırma
+        if (action === 'voice_join_me') {
+            const voiceChannel = interaction.member.voice?.channel;
+            
+            if (!voiceChannel) {
+                return interaction.reply({ 
+                    content: '<a:emoji_97:1544076512037314651> Lütfen önce bir ses kanalına katılın, ardından butona basın!', 
+                    ephemeral: true 
+                });
+            }
+
+            joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: interaction.guild.id,
+                adapterCreator: interaction.guild.voiceAdapterCreator,
+                selfDeaf: true
+            });
+
+            return interaction.reply({ 
+                content: `<a:partimuzik:1544076160445587576> Bot **${interaction.user.username}** kullanıcısının davetiyle **${voiceChannel.name}** kanalına katıldı!`, 
+                ephemeral: false 
+            });
+        }
+
+        // Sesten Ayrılma
+        if (action === 'voice_leave') {
+            const connection = getVoiceConnection(interaction.guild.id);
+            
+            if (!connection) {
+                return interaction.reply({ 
+                    content: '<a:emoji_31:1544076690622521386> Bot zaten herhangi bir ses kanalında değil!', 
+                    ephemeral: true 
+                });
+            }
+
+            connection.destroy();
+            return interaction.reply({ 
+                content: `<a:hata:1544075791397163018> Bot **${interaction.user.username}** tarafından sesten çıkarıldı.`, 
+                ephemeral: false 
+            });
+        }
     }
 };
