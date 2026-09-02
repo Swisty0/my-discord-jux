@@ -8,7 +8,9 @@ const {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    Client,
+    GatewayIntentBits
 } = require('discord.js');
 
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
@@ -258,50 +260,124 @@ module.exports = async (interaction) => {
     }
 
     // ==========================================
-    // 4. SES PANELİ BUTON İŞLEMLERİ (HERKESE AÇIK)
+    // 4. SES PANELİ (TOKEN VE ID İLE BAĞLANTI)
     // ==========================================
-    if (interaction.isButton() && interaction.customId.startsWith('voice_')) {
+    if (interaction.isButton() && interaction.customId.startsWith('voice_token_')) {
         const action = interaction.customId;
 
-        // Bulunduğu Kanala Çağırma
-        if (action === 'voice_join_me') {
-            const voiceChannel = interaction.member.voice?.channel;
-            
-            if (!voiceChannel) {
+        // 1. SESE SOK (FORM AÇAR)
+        if (action === 'voice_token_sese_sok') {
+            const modal = new ModalBuilder()
+                .setCustomId('voice_token_modal')
+                .setTitle('Bot Ses Bağlantı Formu');
+
+            const tokenInput = new TextInputBuilder()
+                .setCustomId('voice_bot_token')
+                .setLabel('Bot Token')
+                .setPlaceholder('MTAyO... (Girmesini istediğiniz botun tokeni)')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            const channelInput = new TextInputBuilder()
+                .setCustomId('voice_channel_id')
+                .setLabel('Ses Kanal ID')
+                .setPlaceholder('Örn: 123456789012345678')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(tokenInput),
+                new ActionRowBuilder().addComponents(channelInput)
+            );
+
+            return await interaction.showModal(modal);
+        }
+
+        // 2. SES DURUMU
+        if (action === 'voice_token_durum') {
+            const connection = getVoiceConnection(interaction.guild.id);
+            if (connection) {
                 return interaction.reply({ 
-                    content: '<a:emoji_97:1544076512037314651> Lütfen önce bir ses kanalına katılın, ardından butona basın!', 
+                    content: '<a:partimuzik:1544076160445587576> **Ses Durumu:** Bot şu anda ses kanalında aktif <a:partimuzik:1544076160445587576>', 
+                    ephemeral: true 
+                });
+            } else {
+                return interaction.reply({ 
+                    content: '<a:hata:1544075791397163018> **Ses Durumu:** Bot herhangi bir ses kanalında değil <a:hata:1544075791397163018>', 
                     ephemeral: true 
                 });
             }
+        }
 
-            joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: interaction.guild.id,
-                adapterCreator: interaction.guild.voiceAdapterCreator,
-                selfDeaf: true
-            });
+        // 3. SESTEN ÇIKAR
+        if (action === 'voice_token_sesten_cikar') {
+            const connection = getVoiceConnection(interaction.guild.id);
+            if (!connection) {
+                return interaction.reply({ content: '<a:emoji_31:1544076690622521386> Bot zaten bir ses kanalında değil!', ephemeral: true });
+            }
+            connection.destroy();
+            return interaction.reply({ content: '<a:hata:1544075791397163018> Bot ses kanalından çıkarıldı.', ephemeral: true });
+        }
+    }
 
+    // SES PANELİ FORM GÖNDERİLDİĞİNDE
+    if (interaction.isModalSubmit() && interaction.customId === 'voice_token_modal') {
+        const inputToken = interaction.fields.getTextInputValue('voice_bot_token').trim();
+        const channelId = interaction.fields.getTextInputValue('voice_channel_id').trim();
+
+        const channel = interaction.guild.channels.cache.get(channelId);
+
+        if (!channel || channel.type !== ChannelType.GuildVoice) {
             return interaction.reply({ 
-                content: `<a:partimuzik:1544076160445587576> Bot **${interaction.user.username}** kullanıcısının davetiyle **${voiceChannel.name}** kanalına katıldı!`, 
-                ephemeral: false 
+                content: '<a:emoji_97:1544076512037314651> **Hata:** Geçersiz Ses Kanalı ID\'si! Lütfen sunucudaki geçerli bir ses kanalı ID\'si girin.', 
+                ephemeral: true 
             });
         }
 
-        // Sesten Ayrılma
-        if (action === 'voice_leave') {
-            const connection = getVoiceConnection(interaction.guild.id);
-            
-            if (!connection) {
-                return interaction.reply({ 
-                    content: '<a:emoji_31:1544076690622521386> Bot zaten herhangi bir ses kanalında değil!', 
-                    ephemeral: true 
+        try {
+            // Girilen token ana botun tokeniyse doğrudan sese sok
+            if (inputToken === interaction.client.token) {
+                joinVoiceChannel({
+                    channelId: channel.id,
+                    guildId: interaction.guild.id,
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    selfDeaf: true
+                });
+
+                return interaction.reply({
+                    content: `<a:partimuzik:1544076160445587576> **Başarılı!** Bot **${channel.name}** ses kanalına bağlandı.`,
+                    ephemeral: true
+                });
+            } 
+            // Yan bot tokeni girildiyse o bot ile sese girer
+            else {
+                await interaction.deferReply({ ephemeral: true });
+
+                const tempClient = new Client({
+                    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
+                });
+
+                await tempClient.login(inputToken);
+
+                const targetGuild = await tempClient.guilds.fetch(interaction.guild.id);
+                const targetChannel = await targetGuild.channels.fetch(channelId);
+
+                joinVoiceChannel({
+                    channelId: targetChannel.id,
+                    guildId: targetGuild.id,
+                    adapterCreator: targetGuild.voiceAdapterCreator,
+                    selfDeaf: true
+                });
+
+                return interaction.editReply({
+                    content: `<a:partimuzik:1544076160445587576> **Başarılı!** \`${tempClient.user.tag}\` isimli yan bot **${targetChannel.name}** ses kanalına sokuldu!`
                 });
             }
-
-            connection.destroy();
-            return interaction.reply({ 
-                content: `<a:hata:1544075791397163018> Bot **${interaction.user.username}** tarafından sesten çıkarıldı.`, 
-                ephemeral: false 
+        } catch (err) {
+            console.error(err);
+            return interaction.reply({
+                content: '<a:emoji_97:1544076512037314651> **Hata:** Bot Tokeni geçersiz veya girdiğiniz bot bu sunucuda ekli değil!',
+                ephemeral: true
             });
         }
     }
