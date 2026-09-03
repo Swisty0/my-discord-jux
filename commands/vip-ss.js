@@ -15,7 +15,6 @@ module.exports = {
                 '-------------------------------------------------------------------------------------\n' +
                 '<a:sagaok:1544076213176246422>VIP Kanallara Ulaşmak için Ekran Görüntülerinizi İletmeniz Gerekmektedir.\n\n' +
                 '# <:classadam:1544075571116511253> **Nasıl Çalışır?**\n\n' +
-                
                 '<a:sagaok:1544076213176246422> Aşağıdaki **` Kanıt Yükle`** butonuna basın.\n' +
                 '<a:sagaok:1544076213176246422> Sadece sizin ve yetkililerin görebileceği özel bir oda açılacaktır.\n' +
                 '<a:sagaok:1544076213176246422> Açılan odaya **en az / en fazla 5 adet** ekran görüntüsü yükleyin.\n' +
