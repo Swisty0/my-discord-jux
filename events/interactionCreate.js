@@ -375,15 +375,20 @@ module.exports = async (interaction) => {
             }
         } catch (err) {
             console.error(err);
-            return interaction.reply({
-                content: '<a:emoji_97:1544076512037314651> **Hata:** Bot Tokeni geçersiz veya girdiğiniz bot bu sunucuda ekli değil!',
-                ephemeral: true
-            });
+            if (interaction.deferred) {
+                return interaction.editReply({
+                    content: '<a:emoji_97:1544076512037314651> **Hata:** Bot Tokeni geçersiz veya girdiğiniz bot bu sunucuda ekli değil!'
+                });
+            } else {
+                return interaction.reply({
+                    content: '<a:emoji_97:1544076512037314651> **Hata:** Bot Tokeni geçersiz veya girdiğiniz bot bu sunucuda ekli değil!',
+                    ephemeral: true
+                });
+            }
         }
     }
-};
 
-// ==========================================
+    // ==========================================
     // 5. VIP SS (KANIT YÜKLEME) SİSTEMİ
     // ==========================================
     if (interaction.isButton()) {
@@ -398,7 +403,6 @@ module.exports = async (interaction) => {
                 });
             }
 
-            // '05-ss-vip' adındaki kategoriyi veya kanalı bulup altına açar, yoksa ana sunucuda oluşturur
             const category = interaction.guild.channels.cache.find(c => c.name === '05-ss-vip' && c.type === ChannelType.GuildCategory);
 
             const channel = await interaction.guild.channels.create({
@@ -438,3 +442,4 @@ module.exports = async (interaction) => {
             return setTimeout(() => interaction.channel.delete().catch(() => {}), 5000);
         }
     }
+};
