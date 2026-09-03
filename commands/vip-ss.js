@@ -10,7 +10,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor('#22f10f')
-            .setTitle('# <a:strike:1544076316263972885> 05-SS DOĞRULAMA\n\n' +)
+            .setTitle('<a:strike:1544076316263972885> 05-SS DOĞRULAMA')
             .setDescription(
                 '-------------------------------------------------------------------------------------\n' +
                 '<a:sagaok:1544076213176246422>VIP Kanallara Ulaşmak için Ekran Görüntülerinizi İletmeniz Gerekmektedir.\n\n' +
