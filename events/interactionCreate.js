@@ -425,16 +425,16 @@ module.exports = async (interaction) => {
                 new ButtonBuilder()
                     .setCustomId('close_vip_ss')
                     .setLabel('Talebi Kapat')
-                    .setEmoji('🔒')
+                    .setEmoji('<a:emoji_97:1544076512037314651>')
                     .setStyle(ButtonStyle.Danger)
             );
 
             await channel.send({ content: `${interaction.user}`, embeds: [embed], components: [closeBtn] });
-            return interaction.reply({ content: `✅ Kanıt yükleme odanız oluşturuldu: ${channel}`, ephemeral: true });
+            return interaction.reply({ content: `<a:kylockz_Onay:1544024256986353686> Kanıt yükleme odanız oluşturuldu: ${channel}`, ephemeral: true });
         }
 
         if (interaction.customId === 'close_vip_ss') {
-            await interaction.reply({ content: '🔒 VIP Kanıt kanalı 5 saniye içinde kapatılıyor...' });
+            await interaction.reply({ content: '<a:hata:1544075791397163018> kanal 5 saniye içinde kapatılıyor...' });
             return setTimeout(() => interaction.channel.delete().catch(() => {}), 5000);
         }
     }
