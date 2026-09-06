@@ -2,7 +2,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 
 module.exports = async (member) => {
     // 1. Hoş geldin mesajının gideceği kanalı bul (Kanal adını sunucuna göre değiştirebilirsin)
-    const welcomeChannel = member.guild.channels.cache.find(c => c.name === 'hoşgeldin' || c.name === 'welcome');
+    const welcomeChannel = member.guild.channels.cache.find(c => c.name === 'hoşgeldiniz' || c.name === 'welcome');
     
     // Kanal yoksa hata vermemesi için işlemi durdur
     if (!welcomeChannel) return;
