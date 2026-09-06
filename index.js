@@ -29,18 +29,34 @@ if (fs.existsSync(commandsPath)) {
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
         const command = require(path.join(commandsPath, file));
-        client.commands.set(command.name, command);
+        // Yalnızca geçerli komut objelerini koleksiyona ekler
+        if (command && command.name) {
+            client.commands.set(command.name, command);
+        }
     }
 }
 
-// Event Yükleyici (events/ klasöründeki dosya adına göre eventi otomatik bağlar)
+// Event Yükleyici (events/ klasöründeki dosyaları yükler)
 const eventsPath = path.join(__dirname, 'events');
 if (fs.existsSync(eventsPath)) {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
     for (const file of eventFiles) {
         const event = require(path.join(eventsPath, file));
         const eventName = file.split('.')[0];
-        client.on(eventName, (...args) => event(...args, client));
+        
+        // Eğer modül fonksiyon olarak dışa aktarılmışsa bağla
+        if (typeof event === 'function') {
+            client.on(eventName, (...args) => event(...args, client));
+        }
+    }
+}
+
+// Welcome Modülünü Bağlama
+const welcomePath = path.join(__dirname, 'events', 'welcome.js');
+if (fs.existsSync(welcomePath)) {
+    const { registerWelcomeModule } = require(welcomePath);
+    if (typeof registerWelcomeModule === 'function') {
+        registerWelcomeModule(client);
     }
 }
 
