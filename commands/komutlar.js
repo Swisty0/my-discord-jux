@@ -27,7 +27,7 @@ module.exports = {
                 '<a:32877animatedarrowbluelite:1544079118247796769>` !sunucu-bilgi` - Sunucu istatistiklerini gösterir.\n' +
                 '<a:32877animatedarrowbluelite:1544079118247796769>` !komutlar` - Bu komut listesini gösterir.'
             )
-            .setFooter({ text: 'J U X: ! | Bot Tüm Sistemleri Aktiftir', iconURL: message.client.user.displayAvatarURL() })
+            .setFooter({ text: 'Project Swisty: ! | Bot Tüm Sistemleri Aktiftir', iconURL: message.client.user.displayAvatarURL() })
             .setTimestamp();
 
         message.channel.send({ embeds: [embed] });
