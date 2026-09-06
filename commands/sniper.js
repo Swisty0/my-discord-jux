@@ -11,7 +11,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor('#111113')
             .setDescription(
-                '# <a:strike:1544076316263972885> JUX Sniper Sistemi\n' +
+                '# <a:strike:1544076316263972885> Project Swisty Sniper Sistemi\n' +
                 '---\n' +
                 '### <a:strike:1544076316263972885> Güvenli & Ultra Hızlı\n\n' +
                 '<a:sagaok:1544076213176246422> Discord API Limit Uyumlu\n' +
@@ -30,7 +30,7 @@ module.exports = {
                 '<a:sagaok:1544076213176246422> Hata Algılama Sistemi\n' +
                 '<a:sagaok:1544076213176246422> Otomatik Yeniden Bağlanma\n' +
                 '---\n' +
-                'discord.gg/Jux'
+                'discord.gg/Project Swisty'
             );
 
         const buttons = new ActionRowBuilder().addComponents(
