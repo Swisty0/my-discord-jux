@@ -10,7 +10,7 @@ function registerWelcomeModule(client) {
             if (!channel) return;
 
             const embed = new EmbedBuilder()
-                .setColor('#ffb6c1') // Pastel pembe
+                .setColor('#008000') // Yeşil
                 .setTitle('<a:hosgeldin:1546228962412331060> Aramıza Hoş Geldin!')
                 .setDescription(
                     `Sunucumuza Hoşgeldin ${member}!\n\n` +
