@@ -1,19 +1,22 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = async (member) => {
-    // 1. Hoş geldin mesajının gideceği kanalı bul (Kanal adını sunucuna göre değiştirebilirsin)
-    const welcomeChannel = member.guild.channels.cache.find(c => c.name === 'hoşgeldiniz' || c.name === 'welcome');
+    // 1. Hoş geldin mesajının gideceği kanalı ID ile bul
+    const WELCOME_CHANNEL_ID = '1546206082421096560'; // <-- Kanal ID'sini buraya yazın (ör: '123456789012345678')
+    const welcomeChannel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID);
     
-    // Kanal yoksa hata vermemesi için işlemi durdur
-    if (!welcomeChannel) return;
+    // Kanal bulunamazsa hata vermemesi için işlemi durdur
+    if (!welcomeChannel) {
+        console.error(`[Welcome Error] ${WELCOME_CHANNEL_ID} ID'li kanal bulunamadı!`);
+        return;
+    }
 
-    // 2. Sunucudaki toplam üye sayısı ve hesap oluşturulma tarihi
+    // 2. Sunucudaki toplam üye sayısı
     const memberCount = member.guild.memberCount;
-    const accountCreated = `<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>`;
 
     // 3. Karşılama Embed'i
     const welcomeEmbed = new EmbedBuilder()
-        .setTitle(`<a:hosgeldin:1546228962412331060> Aramıza Katıldı,`)
+        .setTitle('<a:hosgeldin:1546228962412331060> Aramıza Katıldı,')
         .setDescription(
             `<:classadam:1546229584226160750> **Kullanıcı:** ${member} (\`${member.user.tag}\`)\n` +
             `<a:manabar:1546229829148352633> **Seninle Birlikte:** **${memberCount}** Kişiyiz!\n\n` +
@@ -37,7 +40,8 @@ module.exports = async (member) => {
     try {
         await welcomeChannel.send({
             content: `Hey ${member}, Aramıza Katıldı! `,
-            embeds: [welcomeEmbed]
+            embeds: [welcomeEmbed],
+            components: [rulesButton]
         });
     } catch (error) {
         console.error('Hoş geldin mesajı gönderilirken bir hata oluştu:', error);
