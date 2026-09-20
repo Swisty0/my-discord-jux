@@ -2,7 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 
 function registerWelcomeModule(client) {
     // Karşılama kanalının ID'si
-    const channelId = '1546206082421096560'; 
+    const channelId = '1549081840839692388'; 
 
     client.on('guildMemberAdd', async member => {
         try {
